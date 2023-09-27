@@ -75,6 +75,9 @@ class BatteryDefenderNotification {
     }
 
     void dispatchIntent(Intent intent) {
+        if(!mAdaptiveChargingManager.canActivateAdaptiveCharging()) {
+            resumeCharging(BatteryDefenderEvent.BATTERY_DEFENDER_BYPASS_LIMIT);
+        }
         String action = intent.getAction();
         if ("android.intent.action.BATTERY_CHANGED".equals(action)) {
             resolveBatteryChangedIntent(intent);
@@ -186,7 +189,10 @@ class BatteryDefenderNotification {
             if(!mAdaptiveChargingManager.canActivateAdaptiveCharging()) {
                 Log.d("BATTERY_DEFENDER_EXECUTE_BYPASS", "Can't activate Google Battery service, service may not be supported or it's daytime");
                 try {
-                    resumeCharging(BatteryDefenderEvent.BATTERY_DEFENDER_BYPASS_LIMIT);
+                    initHalInterface.setProperty(2, 17, 1);
+                    initHalInterface.setProperty(3, 17, 1);
+                    initHalInterface.setProperty(1, 17, 1);
+                    initHalInterface.clearBatteryDefender();
                 } catch (Exception e) {
                     Log.d(TAG, "Exception occured when disabling battery defender, battery defender is not supported or active");
                 }
@@ -197,7 +203,8 @@ class BatteryDefenderNotification {
                     initHalInterface.setProperty(2, 17, 1);
                     initHalInterface.setProperty(3, 17, 1);
                     initHalInterface.setProperty(1, 17, 1);
-                } catch (RemoteException e) {
+                    initHalInterface.clearBatteryDefender();
+                } catch (Exception e) {
                     Log.e(TAG, "setProperty error: " + e);
                 }
             } finally {
