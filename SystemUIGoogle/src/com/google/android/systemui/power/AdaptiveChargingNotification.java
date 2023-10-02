@@ -59,9 +59,11 @@ class AdaptiveChargingNotification {
         String action = intent.getAction();
         switch (action) {
             case "android.intent.action.BATTERY_CHANGED":
+            case "PNW.batteryStatusChanged":
                 resolveBatteryChangedIntent(intent);
                 break;
             case "PNW.acChargeNormally":
+            case "PNW.normalCharge":
                 mAdaptiveChargingManager.setAdaptiveChargingDeadline(-1);
                 cancelNotification();
                 break;
@@ -111,7 +113,7 @@ class AdaptiveChargingNotification {
     }
 
     private void checkAdaptiveChargingStatus(boolean forceUpdate) {
-        if (!mAdaptiveChargingManager.shouldShowNotification()) {
+        if (!mAdaptiveChargingManager.isAvailable()) {
             return;
         }
         final AdaptiveChargingStatusReceiver adaptiveChargingStatusReceiver = new AdaptiveChargingStatusReceiver(forceUpdate);

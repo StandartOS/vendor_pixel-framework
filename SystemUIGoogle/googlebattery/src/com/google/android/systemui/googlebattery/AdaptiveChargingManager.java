@@ -127,17 +127,8 @@ public class AdaptiveChargingManager {
             }
         };
         IGoogleBattery initHalInterface = null;
-        if(mHasSystemFeature) {
+        if(isAvailable()) {
             initHalInterface = GoogleBatteryManager.initHalInterface(deathRecipient);
-        }
-        if (!canActivateAdaptiveCharging() || secondsFromNow == -1) {
-            try {
-                initHalInterface.setChargingDeadline(-1);
-            } catch (Exception e) {
-                Log.e(TAG, "setChargingDeadline() failed");
-            }
-            GoogleBatteryManager.destroyHalInterface(initHalInterface, deathRecipient);
-            return false;
         }
         if (initHalInterface == null) {
             return false;
@@ -164,15 +155,10 @@ public class AdaptiveChargingManager {
                 adaptiveChargingStatusReceiver.onDestroyInterface();
             }
         };
-        if(mHasSystemFeature) {
+        if(isAvailable()) {
             initHalInterface = GoogleBatteryManager.initHalInterface(deathRecipient);
         }
         if (initHalInterface == null) {
-            adaptiveChargingStatusReceiver.onDestroyInterface();
-            return;
-        }
-        if (!canActivateAdaptiveCharging()) {
-            GoogleBatteryManager.destroyHalInterface(initHalInterface, deathRecipient);
             adaptiveChargingStatusReceiver.onDestroyInterface();
             return;
         }
@@ -187,7 +173,7 @@ public class AdaptiveChargingManager {
     }
     
     public boolean canActivateAdaptiveCharging() {
-        if (!DeviceConfig.getBoolean("adaptive_charging", "adaptive_charging_notification", true) || !hasAdaptiveChargingFeature()) {
+        if (!DeviceConfig.getBoolean("adaptive_charging", "adaptive_charging_notification", true)) {
             return false;
         }
         Calendar calendar = Calendar.getInstance();

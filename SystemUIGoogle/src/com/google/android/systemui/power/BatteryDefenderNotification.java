@@ -75,16 +75,22 @@ class BatteryDefenderNotification {
     }
 
     void dispatchIntent(Intent intent) {
-        if(!mAdaptiveChargingManager.canActivateAdaptiveCharging()) {
-            resumeCharging(BatteryDefenderEvent.BATTERY_DEFENDER_BYPASS_LIMIT);
+        if (intent.getAction() == null) {
+            return;
         }
         String action = intent.getAction();
-        if ("android.intent.action.BATTERY_CHANGED".equals(action)) {
-            resolveBatteryChangedIntent(intent);
-        } else if ("PNW.defenderResumeCharging".equals(action)) {
-            resumeCharging(BatteryDefenderEvent.BATTERY_DEFENDER_BYPASS_LIMIT);
-        } else if ("PNW.defenderResumeCharging.settings".equals(action)) {
-            resumeCharging(BatteryDefenderEvent.BATTERY_DEFENDER_BYPASS_LIMIT_FOR_TIPS);
+        switch (action) {
+            case "android.intent.action.BATTERY_CHANGED":
+            case "PNW.batteryStatusChanged":
+                resolveBatteryChangedIntent(intent);
+                break;
+            case "PNW.defenderResumeCharging":
+            case "PNW.normalCharge":
+                resumeCharging(BatteryDefenderEvent.BATTERY_DEFENDER_BYPASS_LIMIT);
+                break;
+            case "PNW.defenderResumeCharging.settings":
+                resumeCharging(BatteryDefenderEvent.BATTERY_DEFENDER_BYPASS_LIMIT_FOR_TIPS);
+                break;
         }
     }
 
@@ -179,23 +185,11 @@ class BatteryDefenderNotification {
                     Log.d(TAG, "serviceDied");
                 }
             };
-            if (mHasSystemFeature) {
+            if (mAdaptiveChargingManager.isAvailable()) {
                 initHalInterface = initHalInterface(cbRecipient);
             }
             if (initHalInterface == null) {
                 Log.d(TAG, "Cannot init hal interface");
-                return;
-            }
-            if(!mAdaptiveChargingManager.canActivateAdaptiveCharging()) {
-                Log.d("BATTERY_DEFENDER_EXECUTE_BYPASS", "Can't activate Google Battery service, service may not be supported or it's daytime");
-                try {
-                    initHalInterface.setProperty(2, 17, 1);
-                    initHalInterface.setProperty(3, 17, 1);
-                    initHalInterface.setProperty(1, 17, 1);
-                    initHalInterface.clearBatteryDefender();
-                } catch (Exception e) {
-                    Log.d(TAG, "Exception occured when disabling battery defender, battery defender is not supported or active");
-                }
                 return;
             }
             try {
