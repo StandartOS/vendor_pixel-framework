@@ -43,7 +43,7 @@
         settings:searchable="false" />
 
     <com.android.settings.notification.VolumeSeekBarPreference
-        android:icon="@drawable/ic_notifications"
+        android:icon="@drawable/ic_volume_ringer"
         android:key="ring_volume"
         android:order="-160"
         android:title="@string/ring_volume_option_title"
@@ -62,7 +62,8 @@
         android:key="notification_volume"
         android:order="-150"
         android:title="@string/notification_volume_option_title"
-        settings:controller="com.android.settings.notification.NotificationVolumePreferenceController" />
+        settings:controller="com.android.settings.notification.NotificationVolumePreferenceController"
+        settings:unavailableSliceSubtitle="@string/notification_volume_disabled_summary"/>
 
     <com.android.settings.notification.VolumeSeekBarPreference
         android:icon="@*android:drawable/ic_audio_alarm"
@@ -70,7 +71,22 @@
         android:order="-140"
         android:title="@string/alarm_volume_option_title"
         settings:controller="com.android.settings.notification.AlarmVolumePreferenceController" />
-
+    
+    <!-- Link ringtone and notification volumes -->
+    <SwitchPreference
+        android:key="volume_link_notification"
+        android:title="@string/volume_link_notification_title"
+        android:order="-138"
+        settings:controller="com.android.settings.notification.LinkedVolumesPreferenceController"/>
+    
+    <!-- Per-app volume  -->
+    <com.xd.mnmlist.preferences.SystemSettingSwitchPreference
+        android:key="show_app_volume"
+        android:title="@string/app_volume_title"
+        android:summary="@string/app_volume_summary"
+        android:defaultValue="false"
+        android:order="-5"/>
+        
     <com.android.settingslib.RestrictedPreference
         android:fragment="com.android.settings.notification.zen.ZenModeSettings"
         android:key="zen_mode"
@@ -97,7 +113,17 @@
         android:summary="@string/summary_placeholder"
         android:ringtoneType="ringtone"
         settings:allowDividerAbove="false"
-        android:order="-119"/>
+        android:order="-119"
+
+    settings:keywords="@string/sound_settings" />
+
+    <!-- Adaptive Playback -->
+    <Preference
+        android:fragment="com.android.settings.sound.AdaptivePlaybackSoundSettings"
+        android:key="sound_adaptive_playback_summary"
+        android:order="-114"
+        android:title="@string/adaptive_playback_screen_title"
+        settings:controller="com.android.settings.sound.AdaptivePlaybackParentPreferenceController" />
 
     <Preference
         android:fragment="com.android.settings.notification.SpatialAudioSettings"
@@ -178,11 +204,6 @@
         android:key="touch_sounds"
         android:order="-30"
         android:title="@string/touch_sounds_title" />
-
-    <SwitchPreference
-        android:key="vibrate_icon"
-        android:order="-27"
-        android:title="@string/vibrate_icon_title" />
 
     <DropDownPreference
         android:key="dock_audio_media"
